@@ -1,31 +1,34 @@
 package courseservice.course;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import courseservice.exceptions.UserNotLoggedInException;
 import courseservice.user.User;
-import courseservice.user.UserSession;
 
+// GRASP pattern
+// Cyclomatic Complexity = 5, Threshold = 10
 public class CourseService {
-	public List<Course> getCoursesByUser(User user) throws UserNotLoggedInException {
-		List<Course> courseList = new ArrayList<>();
-		User loggedUser = UserSession.getInstance().getLoggedUser();
-		boolean isFriend = false;
-
-		if (loggedUser != null) {
-			for (User friend : user.getFriends()) {
-				if (friend.equals(loggedUser)) {
-					isFriend = true;
-					break;
-				}
-			}
-			if (isFriend) {
-				courseList = CourseDAO.findCoursesByUser(user);
-			}
-			return courseList;
-		} else {
-			throw new UserNotLoggedInException();
-		}
+	private ICourseDAO dao;
+	
+	public CourseService(ICourseDAO dao) {
+		super();
+		this.dao = dao;
 	}
+
+	public List<Course> getCoursesByUser(User user, User loggedInUser) throws UserNotLoggedInException {
+		if (loggedInUser == null) 
+			throw new UserNotLoggedInException();
+		
+		return user.isFriendWith(loggedInUser) ? 
+				coursesBy(user) : emptyList();
+	}
+
+	private List<Course> emptyList() {
+		return java.util.Collections.emptyList();
+	}
+
+	protected List<Course> coursesBy(User user) {
+		return dao.coursesBy(user);
+	}
+
 }

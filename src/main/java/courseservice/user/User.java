@@ -27,4 +27,9 @@ public class User {
 		return Collections.unmodifiableList(courses);
 	}
 
+	public boolean isFriendWith(User aUser) {
+		// Replace algorithm
+		return friends.contains(aUser);
+	}
+
 }
